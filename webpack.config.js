@@ -9,7 +9,7 @@ const config = {
     index: "./src/index.tsx",
   },
   output: {
-    path: path.join(__dirname, "docs"),
+    path: path.join(__dirname, "out"),
     filename: (pathData) => {
       return pathData.chunk.name === "index" ? "bundle.js" : "[name].bundle.js";
     },

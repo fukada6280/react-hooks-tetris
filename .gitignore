@@ -39,3 +39,5 @@ dist
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
+
+out
