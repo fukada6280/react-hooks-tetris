@@ -1,6 +1,5 @@
 # React Hooks Tetris
 
-React でテトリス作りました
+Fork 元を参考にしました。@hideyuk1-jp さんありがとうございます！
 
-こちらで実際に遊べます
-<https://hideyuk1-jp.github.io/react-hooks-tetris/>
+React 入門にとても役立ちました。とても参考になりました。
