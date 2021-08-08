@@ -3,6 +3,7 @@ import React from "react";
 import { Flex, Heading, Text } from "@chakra-ui/layout";
 
 import { Button } from "@chakra-ui/button";
+import { ArrowLeftIcon } from "@chakra-ui/icons";
 
 type Props = {
   score: number;
@@ -22,7 +23,7 @@ const Stage: React.FC<Props> = ({ score, onClickRetry }) => {
         <Text fontSize="4.0rem" fontWeight="700" pb="1.0rem">
           {score.toLocaleString()}
         </Text>
-        <Button colorScheme="red" onClick={onClickRetry}>
+        <Button leftIcon={<ArrowLeftIcon />} colorScheme="gray" variant="outline" onClick={onClickRetry}>
           Retry
         </Button>
       </Flex>

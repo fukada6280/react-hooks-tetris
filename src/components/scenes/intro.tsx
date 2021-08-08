@@ -1,7 +1,8 @@
 import React from "react";
 
-import { Flex, Heading } from "@chakra-ui/layout";
+import { Flex, Heading, Text } from "@chakra-ui/layout";
 import { Button } from "@chakra-ui/button";
+import { ArrowRightIcon } from "@chakra-ui/icons";
 
 type Props = {
   onClickStart: () => void;
@@ -11,10 +12,10 @@ const Intro: React.FC<Props> = ({ onClickStart }) => {
   return (
     <>
       <Heading as="h1" pb="2.0rem">
-        React Hooks Tetris
+        Tetris made with React
       </Heading>
       <Flex justifyContent="center" alignItems="center" flexDir="row" w="100%">
-        <Button colorScheme="red" onClick={onClickStart}>
+        <Button rightIcon={<ArrowRightIcon/>} colorScheme="gray" variant="outline" onClick={onClickStart}>
           Start
         </Button>
       </Flex>
@@ -23,3 +24,4 @@ const Intro: React.FC<Props> = ({ onClickStart }) => {
 };
 
 export default Intro;
+

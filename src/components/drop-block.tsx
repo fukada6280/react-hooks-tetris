@@ -3,14 +3,15 @@ import React, { useEffect } from "react";
 import { Box, SimpleGrid } from "@chakra-ui/layout";
 import { DROP_SPEED, SINGLE_BLOCK_SIZE } from "../constants/index";
 import { DropBlockData } from "../functions/blocks";
+import { FaWindows } from "react-icons/fa";
 
 interface Props {
-  dropBlockData: DropBlockData;
-  onMove: ({ x, y }: { x: number; y: number; type: "move" | "drop" }) => void;
-  onRotate: () => void;
-  onDropped: () => void;
-  nextTurn: () => void;
-  isDropped: boolean;
+  dropBlockData: DropBlockData; // 落下ブロックのデータ
+  onMove: ({ x, y }: { x: number; y: number; type: "move" | "drop" }) => void; // キー入力を受け取る関数
+  onRotate: () => void; // 回転するとき
+  onDropped: () => void; // 落ちる時
+  nextTurn: () => void; // 次のターン
+  isDropped: boolean; // 落ちたかどうか
 }
 
 const DropBlock: React.FC<Props> = ({
@@ -21,7 +22,7 @@ const DropBlock: React.FC<Props> = ({
   nextTurn,
   isDropped,
 }) => {
-  // キー操作による移動、回転
+  // キー操作による移動、回転 いわゆる普通の実装方法をしている
   useEffect(() => {
     const onKeydown: (e: KeyboardEvent) => void = (e) => {
       switch (e.code) {
@@ -48,6 +49,18 @@ const DropBlock: React.FC<Props> = ({
       removeEventListener("keydown", onKeydown);
     };
   }, []);
+
+  /* 連続入力可能なキー操作による移動
+  useEffect(() => {
+    if (window.isKeyDown.key_d) {
+      onMove({ x: 1, y: 0, type: "move" });
+    } else if (window.isKeyDown.key_s) {
+      onMove({ x: 0, y: 1, type: "move" });
+    } else if (window.isKeyDown.key_a) {
+      onMove({ x: -1, y: 0, type: "move" });
+    } 
+  }, [])
+  */
 
   // 自然落下
   useEffect(() => {
@@ -80,6 +93,7 @@ const DropBlock: React.FC<Props> = ({
     }
   }, [isDropped]);
 
+  // 落ちるブロックの描画　
   return (
     <SimpleGrid
       columns={dropBlockData.columns}
@@ -97,6 +111,7 @@ const DropBlock: React.FC<Props> = ({
             key={i}
             width="100%"
             height="100%"
+            rounded="sm"
           ></Box>
         );
       })}

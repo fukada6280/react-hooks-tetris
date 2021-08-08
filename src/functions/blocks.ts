@@ -2,6 +2,7 @@ import { FIELD_SIZE } from "../constants";
 import { BLOCK_DEFAULT_PARAM, BLOCKS } from "../constants/blocks";
 import { Field } from "../components/game-root";
 
+// 落ちブロック型の定義
 export interface DropBlockData {
   columns: number;
   rows: number;
@@ -10,15 +11,16 @@ export interface DropBlockData {
   data: (null | string)[];
 }
 
+// 引数最大数をとり、戻り値に0~maxをとる
 export const getRandomNumber = (max: number) => Math.floor(Math.random() * max);
 
 // 落ちブロックを生成
 export const createBlock = () => {
-  const data = BLOCKS[getRandomNumber(BLOCKS.length)];
+  const data = BLOCKS[getRandomNumber(BLOCKS.length)]; // 形を決めている
 
   return {
-    ...BLOCK_DEFAULT_PARAM,
-    data,
+    ...BLOCK_DEFAULT_PARAM, // タプル型だがあくまで配列なので.pop().push()できる　可変長引数の型を表すのにも使える
+    data,　// 初期値にdata(=形)を加えてreturn
   };
 };
 
@@ -29,7 +31,7 @@ export const getRotatedBlockData = (blockData: DropBlockData) => {
   blockData.data.forEach((v, i) => {
     const y = Math.floor(i / w);
     const x = i % w;
-    rotatedData[x * w + (w - 1 - y)] = v;
+    rotatedData[x * w + (w - 1 - y)] = v; // 回転行列で回転させている
   });
   return {
     ...blockData,

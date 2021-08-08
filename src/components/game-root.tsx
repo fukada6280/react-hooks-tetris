@@ -1,15 +1,17 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import { Box, Flex, SimpleGrid } from "@chakra-ui/layout";
+import { Box, Flex, SimpleGrid, Text } from "@chakra-ui/layout";
 
 import { FIELD_SIZE } from "../constants/index";
 import {
   audioMove,
   audioHit,
   audioClearLine,
-  audioBGM,
   audioGameover,
+  audioOtowared,
+  audioOtowaredBGM
 } from "../constants/audios";
+
 import {
   checkHit,
   clearFilledRows,
@@ -24,46 +26,58 @@ interface Props {
   onGameOvered: () => void;
   addScore: (add: number) => void;
   isSoundOn: boolean;
+  score: number;
 }
 
 export type Field = Array<string | null>;
 
-const GameRoot: React.FC<Props> = ({ onGameOvered, addScore, isSoundOn }) => {
+const GameRoot: React.FC<Props> = ({ onGameOvered, addScore, isSoundOn, score }) => {
   // ゲームに必要なstate類
+  // 一連の処理状態を管理するstate: 
   const [turnState, setTurnState] = useState({
-    field: [...Array(FIELD_SIZE.rows * FIELD_SIZE.columns)],
-    dropBlock: createBlock(),
-    nextDropBlock: createBlock(),
-    isDropped: false,
+    field: [...Array(FIELD_SIZE.rows * FIELD_SIZE.columns)], // 盤面の情報 はじめは全部null
+    dropBlock: createBlock(), // 操作中のブロック情報を格納
+    nextDropBlock: createBlock(), // 次の操作ブロック情報を格納
+    isDropped: false, // 操作ブロックが落ちきったかどうか
   });
+
+  // 書き換え可能な値を保持（毎回のレンダーで同じrefオブジェクトを返す）
+  // .currentプロパティ内に値を保持しているためstateと似ているが
+  // 中身が書き換わっても通知せず、再レンダーされないのが特徴
+  // これをJSX内に記述すると変数に変更が加わった瞬間に表示が変わる
   const turnStateRef = useRef(turnState);
   const isSoundOnRef = useRef(isSoundOn);
 
   // 最新のstateを呼ぶための処理
   useEffect(() => {
+    // 最初のマウント時と与えられた値に変化があった場合に実行
     turnStateRef.current = turnState;
   }, [turnState]);
+
+  // サウンド変化があった際にのみ呼ばれる
   useEffect(() => {
     isSoundOnRef.current = isSoundOn;
   }, [isSoundOn]);
 
   // BGM再生
   useEffect(() => {
+    // 最初のマウント時と与えられた値に変化があった場合に実行
     if (isSoundOn) {
-      if (audioBGM.paused) {
-        audioBGM.loop = true;
-        audioBGM.play();
+      if (audioOtowaredBGM.paused) {
+        audioOtowaredBGM.loop = true;
+        audioOtowaredBGM.play();
       } else {
-        audioBGM.loop = true;
-        audioBGM.currentTime = 0;
-        audioBGM.play();
+        audioOtowaredBGM.loop = true;
+        audioOtowaredBGM.currentTime = 0;
+        audioOtowaredBGM.play();
       }
     } else {
-      audioBGM.pause();
+      audioOtowaredBGM.pause();
     }
 
     return () => {
-      audioBGM.pause();
+      // componentWillUnmount
+      audioOtowaredBGM.pause();
     };
   }, [isSoundOn]);
 
@@ -92,8 +106,8 @@ const GameRoot: React.FC<Props> = ({ onGameOvered, addScore, isSoundOn }) => {
 
       if (y > 0)
         setTurnState({
-          ...turnStateRef.current,
-          isDropped: true,
+          ...turnStateRef.current, // 分割代入でisDroppedのみ更新する
+          isDropped: true, // これだけ書くとその他の値を消してしまう
         });
       return;
     }
@@ -137,6 +151,7 @@ const GameRoot: React.FC<Props> = ({ onGameOvered, addScore, isSoundOn }) => {
     }
   }, []);
 
+  // ドロップしたときに実行
   const handleOnDropped = useCallback(() => {
     console.log("Turn end");
     // ゲームオーバー判定
@@ -145,7 +160,7 @@ const GameRoot: React.FC<Props> = ({ onGameOvered, addScore, isSoundOn }) => {
 
       if (isSoundOnRef.current) {
         audioGameover.currentTime = 0;
-        audioGameover.play();
+        audioOtowared.play();
       }
 
       onGameOvered();
@@ -180,26 +195,17 @@ const GameRoot: React.FC<Props> = ({ onGameOvered, addScore, isSoundOn }) => {
     });
   }, []);
 
+  // 次のターンが開始したときに呼ばれる
+  // レンダー中に実行されるので副作用はNG、最適化のために使う感じ
   const handleNextTurn = useCallback(() => {
     console.log("Turn Start");
   }, []);
 
   return (
     <>
-      <Flex justifyContent="center" alignItems="center" w="FIELD_SIZE.width">
-        <SimpleGrid
-          h="4rem"
-          w={`${
-            (4 * turnStateRef.current.nextDropBlock.columns) /
-            turnStateRef.current.nextDropBlock.rows
-          }rem`}
-          columns={turnStateRef.current.nextDropBlock.columns}
-        >
-          {turnStateRef.current.nextDropBlock.data.map((color, i) => {
-            return <Box bgColor={color ?? "transparent"} key={i}></Box>;
-          })}
-        </SimpleGrid>
-      </Flex>
+      {/* フィールドとnext,scoreの描画 */}
+      <Flex>
+      {/* フィールドの描画 */}
       <Box
         w={FIELD_SIZE.width}
         h={FIELD_SIZE.height}
@@ -232,11 +238,39 @@ const GameRoot: React.FC<Props> = ({ onGameOvered, addScore, isSoundOn }) => {
                 key={i}
                 width="100%"
                 height="100%"
+                rounded="sm"
               ></Box>
             );
           })}
         </SimpleGrid>
+
       </Box>
+      
+      <Box>
+        {/* nextを表示する */}
+        <Flex>
+          <Text pb="1.0rem" fontSize="1.5rem" fontWeight="700" m={4}>
+            Next:
+          </Text>
+          <SimpleGrid
+            h="4rem"
+            w={`${
+              (4 * turnStateRef.current.nextDropBlock.columns) /
+              turnStateRef.current.nextDropBlock.rows
+            }rem`}
+            columns={turnStateRef.current.nextDropBlock.columns}
+          >
+            {turnStateRef.current.nextDropBlock.data.map((color, i) => {
+              return <Box bgColor={color ?? "transparent"} key={i} rounded="sm"></Box>;
+            })}
+          </SimpleGrid>
+        </Flex>
+        {/* scoreを表示する */}
+        <Text pb="1.0rem" fontSize="1.5rem" fontWeight="700" m={4}>
+          Score: {score}
+        </Text>
+      </Box>
+    </Flex>
     </>
   );
 };

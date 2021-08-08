@@ -10,7 +10,7 @@ type Props = {
   isSoundOn: boolean;
 };
 
-const messages = ["一度に沢山のラインを消すと、多くのスコアをゲットできるよ！"];
+const messages = ["一度に沢山消すとスコアが増えるよ！がんばろう！"];
 
 const CountDown: React.FC<Props> = ({ onCountOvered, isSoundOn }) => {
   const [count, setCount] = useState(COUNT_DOWN_START);
@@ -25,7 +25,7 @@ const CountDown: React.FC<Props> = ({ onCountOvered, isSoundOn }) => {
   useEffect(() => {
     isSoundOnRef.current = isSoundOn;
   }, [isSoundOn]);
-
+  
   useEffect(() => {
     let timer: number;
 
@@ -35,12 +35,14 @@ const CountDown: React.FC<Props> = ({ onCountOvered, isSoundOn }) => {
         audioCountdown.play();
       }
       setCount((current) => current - 1);
-      timer = window.setTimeout(step, 1000);
+      timer = window.setTimeout(step, 1000); //どのブラウザでも1000ms待ってstep()を実行
     }
+
     if (isSoundOnRef.current) {
       audioCountdown.currentTime = 0;
-      audioCountdown.play();
+      audioCountdown.play(); // ﾋﾟｯって音を鳴らす
     }
+
     timer = window.setTimeout(step, 1000);
 
     return () => {
@@ -54,6 +56,9 @@ const CountDown: React.FC<Props> = ({ onCountOvered, isSoundOn }) => {
 
   return (
     <Flex justifyContent="center" alignItems="center" flexDir="column" w="100%">
+      <Text fontSize="md" fontWeight="700" pb="2.0rem">
+        {messages}
+      </Text>
       <Text fontSize="5.0rem" fontWeight="700" pb="2.0rem">
         {count}
       </Text>

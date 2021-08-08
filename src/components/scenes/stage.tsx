@@ -13,14 +13,17 @@ const Stage: React.FC<Props> = ({ onGameOvered, isSoundOn }) => {
   const [score, setScore] = useState(0);
   const scoreRef = useRef(score);
 
+  // スコア変更の際に更新
   useEffect(() => {
     scoreRef.current = score;
   }, [score]);
 
+  // スコアを更新する関数
   const addScore = useCallback((add: number) => {
     setScore((current) => current + add);
   }, []);
 
+  // ゲームオーバーしたときの挙動 = handle
   const handleGameOvered = useCallback(() => {
     onGameOvered(scoreRef.current);
   }, []);
@@ -33,22 +36,21 @@ const Stage: React.FC<Props> = ({ onGameOvered, isSoundOn }) => {
         flexDir="column"
         w="100%"
       >
-        <Text pb="1.0rem" fontSize="1.5rem" fontWeight="700">
-          Score: {score.toLocaleString()}
-        </Text>
 
         <GameRoot
           onGameOvered={handleGameOvered}
           addScore={addScore}
           isSoundOn={isSoundOn}
+          score={score}
         />
 
         <Text pt="1.0rem">
-          左：<Kbd color="gray.700">←</Kbd>
-          、下：<Kbd color="gray.700">↓</Kbd>
-          、右：<Kbd color="gray.700">→</Kbd>　
-          <br />
-          回転：<Kbd color="gray.700">space</Kbd>
+          ・左移動：<Kbd color="gray.700">←</Kbd>
+          ・右移動：<Kbd color="gray.700">→</Kbd>
+        </Text>
+        <Text pt="1.0rem">
+          ・下移動：<Kbd color="gray.700">↓</Kbd>
+          ・右回転：<Kbd color="gray.700">space</Kbd>
         </Text>
       </Flex>
     </>
